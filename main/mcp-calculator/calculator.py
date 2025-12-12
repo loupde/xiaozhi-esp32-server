@@ -84,10 +84,8 @@ async def register_client(mac: str, websocket: Any):
 async def unregister_client(mac: str, websocket: Any):
     """注销客户端连接"""
     if mac in mac_client_map:
-        # mac_client_map[mac].discard(websocket)
-        # 如果该mac下无连接，清理键
-        if not mac_client_map[mac]:
-            del mac_client_map[mac]
+        # 直接删除该mac的连接
+        del mac_client_map[mac]
         logger.info(f"客户端 [{mac}] 已断开，剩余连接数: {len(mac_client_map)}")
 
 async def handle_client(websocket: Any):
@@ -147,12 +145,12 @@ async def startWsServer():
             await server.wait_closed()
         
         # 清理所有客户端连接
-        for mac, clients in list(mac_client_map.items()):
-            for client in clients:
-                try:
-                    await client[''].close(code=1001, reason=b"Server shutdown")
-                except Exception:
-                    pass
+        for mac, client_obj in list(mac_client_map.items()):
+            try:
+                websocket = client_obj['websocket']
+                await websocket.close(code=1001, reason=b"Server shutdown")
+            except Exception:
+                pass
             del mac_client_map[mac]
         
         logger.info("服务端已完全停止，所有资源已清理")
@@ -173,21 +171,11 @@ async def startWsServer():
 # 定义一个异步函数来运行MCP服务器
 async def run_mcp_server():
     """运行MCP服务器"""
-    import threading
-    
-    # 创建一个线程来运行mcp.run，因为它是阻塞调用
-    def mcp_thread():
-        try:
-            mcp.run(transport="stdio")
-        except KeyboardInterrupt:
-            pass
-    
-    # 启动MCP服务器线程
-    thread = threading.Thread(target=mcp_thread, daemon=True)
-    thread.start()
-    
-    # 返回线程对象，以便可以监控它
-    return thread
+    try:
+        # 使用asyncio.to_thread来运行阻塞的mcp.run函数
+        await asyncio.to_thread(mcp.run, transport="stdio")
+    except KeyboardInterrupt:
+        pass
 
 # Start the server
 if __name__ == "__main__":
