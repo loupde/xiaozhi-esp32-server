@@ -12,8 +12,6 @@ from typing import Dict, Set, Any
 
 mac_client_map: Dict[str, Dict] = {}
 # 核心配置常量
-MAX_CONNECTIONS_PER_MAC = 5  # 单个MAC最大连接数
-MAC_PATTERN = re.compile(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$')  # MAC地址校验
 WS_HOST = "0.0.0.0"
 WS_PORT = 9527
 WS_PING_INTERVAL = 30  # 心跳间隔（秒）
@@ -47,32 +45,76 @@ def queryProducts(device_id:str) -> dict:
               {"name": "蝴蝶TENS", "special": "有26个模式,他的不同在于他除了缓解疼痛跟肌肉训练还有MASSAGE按摩模式和女性痛经模式,更专业适合重度患者使用,设备有三个按钮,左右两个按键可以调节输出强度,中间按钮长按开关机,短按切换模式"},
               {"name": "腰带1", "special": "佩戴方便，使用效果显著"}
             ]
-    return {"success": True, "result": result}
-
+    return {"success": 0, "result": result}
 
 @mcp.tool()
-def queryShop(local_address:str) -> dict:
-    """ 在想要购买产品时，请始终使用此工具来查询该城市的门店信息"""
-    logger.info(f"queryShop local_address: {local_address}")
-    logger.info(f"queryShop local_address: {local_address}")
-    # logger.info(f"rrrrr{parameter}")
-    return {"success": True, "result": "重庆市渝北区xxx街xxx号"}
-@mcp.tool()
-async def controlProduct(device_id:str,strength:int) -> dict:
-    """ 在想要控制产品时，请始终使用此工具来控制产品的状态
+async def controlProductStrength(device_id:str,strength:int) -> dict:
+    """ 在想要控制产品按摩强度时，请始终使用此工具来控制产品的状态
     :param device_id: 设备ID"""
     logger.info(f"controlProduct 设备ID: {device_id}")
+    return await sendto_client(device_id,{"type":"strength","strength": strength})
+
+@mcp.tool()
+async def controlProductMode(device_id:str,mode:int) -> dict:
+    """ 在想要控制产品按摩模式时，请始终使用此工具来控制产品的模式
+    :param device_id: 设备ID"""
+    logger.info(f"controlProduct 设备ID: {device_id}")
+    return await sendto_client(device_id,{"type":"mode","mode": mode})
+
+    @mcp.tool()
+async def controlProductTime(device_id:str,time:int) -> dict:
+    """ 在想要控制产品按摩时长时，请始终使用此工具来控制产品的按摩时长
+    :param device_id: 设备ID
+    :param time: 时长（分钟）"""
+    logger.info(f"controlProduct 设备ID: {device_id}")
+    return await sendto_client(device_id,{"type":"time","time": time})
+
+@mcp.tool()
+async def controlProductStartOrPause(device_id:str,startOrPause:int) -> dict:
+    """ 在想要控制产品时暂停或者继续时，请始终使用此工具来控制产品的状态
+    :param device_id: 设备ID
+    :param startOrPause: 1 开始 0 暂停"""
+    logger.info(f"controlProduct 设备ID: {device_id}")
+    return await sendto_client(device_id,{"type":"status","status": startOrPause})
+@mcp.tool()
+async def jumpPage(device_id:str,pageName:str) -> dict:
+    """ 在app上想要跳转页面时，请始终使用此工具来控制app的页面跳转
+    :param device_id: 设备ID
+    :param pageName: 页面名"""
+    pages = [
+              {"name":"首页","path" :"home"},
+              {"name": "历史记录", "path": "history"},
+              {"name": "购物", "path": "shop"},
+              {"name": "个人中心", "path": "personalCenter"},
+              {"name": "控制页面", "path": "control"},
+              {"name": "连接设备", "path": "connect"},
+            ]
+    path = None
+    for page in pages:
+        if page["name"] == pageName:
+            path = page["path"]
+    if path == None:
+        return {"success": -1, "message": "页面不存在"}
+    return await sendto_client(device_id,{"type":"jump","path": path})
+  
+async def sendto_client(device_id: str,result: dict) -> dict:
+    if device_id not in mac_client_map:
+        logger.error(f"设备 {device_id} 未连接或不存在")
+        return {"success": -1, "result": "设备未连接"}
     obj = mac_client_map[device_id]
     websocket = obj['websocket']
     if websocket:
         try:
-          result = {"success": True, "result": {strength},"message": "操作成功,强度已经调整成:{strength}"}
+          result = {"success": 0, "result": result,"message": f"操作成功"}
+          logger.info(f"向设备 {device_id} 发送消息: {json.dumps(result)}")
           await websocket.send(json.dumps(result))
           return result
         except Exception as e:
           logger.error(f"向设备 {device_id} 发送消息失败: {str(e)}")
+          return {"success": -5, "result": "发送消息失败"}
     else:
-        return {"success": False, "result": "设备未连接"}
+        return {"success": -1, "result": "设备连接已断开"}
+
 
 async def register_client(mac: str, websocket: Any):
     """注册客户端连接到mac地址映射"""
