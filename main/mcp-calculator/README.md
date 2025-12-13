@@ -113,9 +113,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Thanks to all contributors who have helped shape this project | 感谢所有帮助塑造这个项目的贡献者
 - Inspired by the need for extensible AI capabilities | 灵感来源于对可扩展AI能力的需求
-
-
-
-
-
-export MCP_ENDPOINT=ws://.107.177.172:23456/mcp_endpoint/mcp/?token=zmhJ6uQHu9mtukbcAHV1jI7G3RhRu9ArjnlwQ%2BooOksXGhi2v5zrG1a50XbhXIY3

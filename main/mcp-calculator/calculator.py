@@ -12,8 +12,6 @@ from typing import Dict, Set, Any
 
 mac_client_map: Dict[str, Dict] = {}
 # 核心配置常量
-MAX_CONNECTIONS_PER_MAC = 5  # 单个MAC最大连接数
-MAC_PATTERN = re.compile(r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$')  # MAC地址校验
 WS_HOST = "0.0.0.0"
 WS_PORT = 9527
 WS_PING_INTERVAL = 30  # 心跳间隔（秒）
@@ -49,30 +47,38 @@ def queryProducts(device_id:str) -> dict:
             ]
     return {"success": True, "result": result}
 
-
 @mcp.tool()
-def queryShop(local_address:str) -> dict:
-    """ 在想要购买产品时，请始终使用此工具来查询该城市的门店信息"""
-    logger.info(f"queryShop local_address: {local_address}")
-    logger.info(f"queryShop local_address: {local_address}")
-    # logger.info(f"rrrrr{parameter}")
-    return {"success": True, "result": "重庆市渝北区xxx街xxx号"}
-@mcp.tool()
-async def controlProduct(device_id:str,strength:int) -> dict:
-    """ 在想要控制产品时，请始终使用此工具来控制产品的状态
+async def controlProductStrength(device_id:str,strength:int) -> dict:
+    """ 在想要控制产品按摩强度时，请始终使用此工具来控制产品的状态
     :param device_id: 设备ID"""
     logger.info(f"controlProduct 设备ID: {device_id}")
+    return await sendto_client(device_id,{"type":"strength","strength": strength})
+@mcp.tool()
+async def controlProductStartOrPause(device_id:str,startOrPause:int) -> dict:
+    """ 在想要控制产品时暂停或者继续时，请始终使用此工具来控制产品的状态
+    :param device_id: 设备ID
+    :param startOrPause: 1 开始 0 暂停"""
+    logger.info(f"controlProduct 设备ID: {device_id}")
+    return await sendto_client(device_id,{"type":"status","status": startOrPause})
+  
+async def sendto_client(device_id: str,result: dict) -> dict:
+    if device_id not in mac_client_map:
+        logger.error(f"设备 {device_id} 未连接或不存在")
+        return {"success": "0", "result": "设备未连接"}
     obj = mac_client_map[device_id]
     websocket = obj['websocket']
     if websocket:
         try:
-          result = {"success": True, "result": {strength},"message": "操作成功,强度已经调整成:{strength}"}
+          result = {"success": "1", "result": result,"message": f"操作成功"}
+          logger.info(f"向设备 {device_id} 发送消息: {json.dumps(result)}")
           await websocket.send(json.dumps(result))
           return result
         except Exception as e:
           logger.error(f"向设备 {device_id} 发送消息失败: {str(e)}")
+          return {"success": "0", "result": "发送消息失败"}
     else:
-        return {"success": False, "result": "设备未连接"}
+        return {"success": "0", "result": "设备连接已断开"}
+
 
 async def register_client(mac: str, websocket: Any):
     """注册客户端连接到mac地址映射"""
