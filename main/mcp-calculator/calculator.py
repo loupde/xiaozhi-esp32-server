@@ -61,7 +61,7 @@ async def controlProductMode(device_id:str,mode:int) -> dict:
     logger.info(f"controlProduct 设备ID: {device_id}")
     return await sendto_client(device_id,{"type":"mode","mode": mode})
 
-    @mcp.tool()
+@mcp.tool()
 async def controlProductTime(device_id:str,time:int) -> dict:
     """ 在想要控制产品按摩时长时，请始终使用此工具来控制产品的按摩时长
     :param device_id: 设备ID
