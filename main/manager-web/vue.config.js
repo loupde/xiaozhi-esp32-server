@@ -41,6 +41,7 @@ const useCDN = process.env.VUE_APP_USE_CDN === 'true';
 module.exports = defineConfig({
   productionSourceMap: process.env.NODE_ENV !=='production', // 生产环境不生成 source map
   devServer: {
+    allowedHosts: 'all',
     port: 8001, // 指定端口为 8001
     proxy: {
       '/xiaozhi': {
