@@ -40,6 +40,7 @@ async def resume_vad_detection(conn):
 async def startToChat(conn, text):
     # 检查输入是否是JSON格式（包含说话人信息）
     speaker_name = None
+    language_tag = None
     actual_text = text
 
     try:
@@ -48,6 +49,7 @@ async def startToChat(conn, text):
             data = json.loads(text)
             if "speaker" in data and "content" in data:
                 speaker_name = data["speaker"]
+                language_tag = data["language"]
                 actual_text = data["content"]
                 conn.logger.bind(tag=TAG).info(f"解析到说话人信息: {speaker_name}")
 
@@ -62,6 +64,11 @@ async def startToChat(conn, text):
         conn.current_speaker = speaker_name
     else:
         conn.current_speaker = None
+    # 保存语种信息到连接对象
+    if language_tag:
+        conn.current_language_tag = language_tag
+    else:
+        conn.current_language_tag = "zh"
 
     if conn.need_bind:
         await check_bind_device(conn)
@@ -123,7 +130,7 @@ async def max_out_size(conn):
     text = "不好意思，我现在有点事情要忙，明天这个时候我们再聊，约好了哦！明天不见不散，拜拜！"
     await send_stt_message(conn, text)
     file_path = "config/assets/max_output_size.wav"
-    opus_packets = audio_to_data(file_path)
+    opus_packets = await audio_to_data(file_path)
     conn.tts.tts_audio_queue.put((SentenceType.LAST, opus_packets, text))
     conn.close_after_chat = True
 
@@ -142,7 +149,7 @@ async def check_bind_device(conn):
 
         # 播放提示音
         music_path = "config/assets/bind_code.wav"
-        opus_packets = audio_to_data(music_path)
+        opus_packets = await audio_to_data(music_path)
         conn.tts.tts_audio_queue.put((SentenceType.FIRST, opus_packets, text))
 
         # 逐个播放数字
@@ -150,7 +157,7 @@ async def check_bind_device(conn):
             try:
                 digit = conn.bind_code[i]
                 num_path = f"config/assets/bind_code/{digit}.wav"
-                num_packets = audio_to_data(num_path)
+                num_packets = await audio_to_data(num_path)
                 conn.tts.tts_audio_queue.put((SentenceType.MIDDLE, num_packets, None))
             except Exception as e:
                 conn.logger.bind(tag=TAG).error(f"播放数字音频失败: {e}")
@@ -162,5 +169,5 @@ async def check_bind_device(conn):
         text = f"没有找到该设备的版本信息，请正确配置 OTA地址，然后重新编译固件。"
         await send_stt_message(conn, text)
         music_path = "config/assets/bind_not_found.wav"
-        opus_packets = audio_to_data(music_path)
+        opus_packets = await audio_to_data(music_path)
         conn.tts.tts_audio_queue.put((SentenceType.LAST, opus_packets, text))

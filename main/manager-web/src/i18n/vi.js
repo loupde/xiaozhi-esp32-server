@@ -25,7 +25,7 @@ export default {
   'header.featureManagement': 'Cấu hình chức năng hệ thống',
   'header.changePassword': 'Đổi mật khẩu',
   'header.logout': 'Đăng xuất',
-  'header.searchPlaceholder': 'Tìm kiếm theo tên..',
+  'header.searchPlaceholder': 'Tìm tên hoặc MAC',
 
   // McpToolCallDialog component text
   'mcpToolCall.title': 'Gọi công cụ',
@@ -713,7 +713,7 @@ export default {
   'paramManagement.deleteFailed': 'Xóa thất bại, vui lòng thử lại',
   'paramManagement.operationCancelled': 'Đã hủy xóa',
   'paramManagement.operationClosed': 'Đã đóng thao tác',
-  'paramManagement.updateSuccess': 'Cập nhật thành công',
+  'paramManagement.updateSuccess': 'Cập nhật thành công. Một số cấu hình chỉ có hiệu lực sau khi khởi động lại mô-đun xiaozhi-server.',
   'paramManagement.addSuccess': 'Thêm thành công',
   'paramManagement.updateFailed': 'Cập nhật thất bại',
   'paramManagement.addFailed': 'Thêm thất bại',
@@ -779,6 +779,16 @@ export default {
   'roleConfig.fetchConfigFailed': 'Không thể lấy cấu hình',
   'roleConfig.fetchModelsFailed': 'Không thể tải danh sách mô hình',
   'roleConfig.fetchPluginsFailed': 'Không thể tải danh sách plugin',
+  'roleConfig.cannotResumeAudio': 'Không thể tiếp tục phát âm thanh',
+  'roleConfig.selectVoiceFirst': 'Vui lòng chọn giọng nói trước',
+  'roleConfig.audioLoadTimeout': 'Tải âm thanh mất quá nhiều thời gian, vui lòng thử lại sau',
+  'roleConfig.cloneAudioPlayFailed': 'Phát âm thanh sao chép thất bại',
+  'roleConfig.cannotPlayCloneAudio': 'Không thể phát âm thanh sao chép',
+  'roleConfig.getCloneAudioFailed': 'Không thể lấy âm thanh sao chép',
+  'roleConfig.noPreviewAudio': 'Giọng nói này không có âm thanh xem trước',
+  'roleConfig.audioPlayFailed': 'Phát âm thanh thất bại',
+  'roleConfig.cannotPlayAudio': 'Không thể phát âm thanh',
+  'roleConfig.audioPlayError': 'Lỗi trong quá trình phát âm thanh',
 
   // Function management dialog text
   'functionDialog.title': 'Quản lý chức năng',
@@ -821,7 +831,7 @@ export default {
   'modelConfig.rag': 'RAG',
   'modelConfig.modelId': 'ID mô hình',
   'modelConfig.modelName': 'Tên mô hình',
-  'modelConfig.provider': 'Nhà cung cấp',
+  'modelConfig.provider': 'Loại giao diện',
   'modelConfig.unknown': 'Không xác định',
   'modelConfig.isEnabled': 'Đã bật',
   'modelConfig.isDefault': 'Mặc định',
@@ -852,7 +862,7 @@ export default {
   'modelConfig.enableSuccess': 'Bật thành công',
   'modelConfig.disableSuccess': 'Tắt thành công',
   'modelConfig.operationFailed': 'Thao tác thất bại',
-  'modelConfig.setDefaultSuccess': 'Đặt mô hình mặc định thành công',
+  'modelConfig.setDefaultSuccess': 'Đặt mô hình mặc định thành công, vui lòng khởi động lại module xiaozhi-server thủ công kịp thời',
   'modelConfig.itemsPerPage': '{items} mục/trang',
   'modelConfig.firstPage': 'Trang đầu',
   'modelConfig.prevPage': 'Trang trước',
@@ -919,6 +929,10 @@ export default {
   'ttsModel.selectVoiceToDelete': 'Vui lòng chọn giọng nói để xóa',
   'ttsModel.warning': 'Cảnh báo',
   'ttsModel.confirmDeleteVoice': 'Bạn có chắc chắn muốn xóa {count} giọng nói?',
+  'ttsModel.voiceCodeNameLanguageRequired': 'Mã giọng nói, tên giọng nói và loại ngôn ngữ không được để trống',
+  'ttsModel.deleteCancelled': 'Xóa đã bị hủy',
+  'ttsModel.updateSuccess': 'Cập nhật thành công',
+  'ttsModel.saveSuccess': 'Lưu thành công',
 
   // OTA Management Page Text
   'otaManagement.firmwareManagement': 'Quản lý firmware',

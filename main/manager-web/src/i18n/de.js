@@ -25,7 +25,7 @@ export default {
   'header.featureManagement': 'Systemfunktionsverwaltung',
   'header.changePassword': 'Passwort ändern',
   'header.logout': 'Abmelden',
-  'header.searchPlaceholder': 'Nach Namen suchen..',
+  'header.searchPlaceholder': 'Namen oder MAC suchen',
 
   // McpToolCallDialog component text
   'mcpToolCall.title': 'Werkzeugaufruf',
@@ -713,7 +713,7 @@ export default {
   'paramManagement.deleteFailed': 'Löschen fehlgeschlagen, bitte versuchen Sie es erneut',
   'paramManagement.operationCancelled': 'Löschen abgebrochen',
   'paramManagement.operationClosed': 'Operation geschlossen',
-  'paramManagement.updateSuccess': 'Aktualisierung erfolgreich',
+  'paramManagement.updateSuccess': 'Aktualisierung erfolgreich. Einige Konfigurationen werden erst nach Neustart des xiaozhi-server-Moduls wirksam.',
   'paramManagement.addSuccess': 'Hinzufügen erfolgreich',
   'paramManagement.updateFailed': 'Aktualisierung fehlgeschlagen',
   'paramManagement.addFailed': 'Hinzufügen fehlgeschlagen',
@@ -779,6 +779,16 @@ export default {
   'roleConfig.fetchConfigFailed': 'Konfiguration konnte nicht abgerufen werden',
   'roleConfig.fetchModelsFailed': 'Modellliste konnte nicht abgerufen werden',
   'roleConfig.fetchPluginsFailed': 'Plugin-Liste konnte nicht abgerufen werden',
+  'roleConfig.cannotResumeAudio': 'Audio-Wiedergabe kann nicht fortgesetzt werden',
+  'roleConfig.selectVoiceFirst': 'Bitte wählen Sie zuerst eine Stimme aus',
+  'roleConfig.audioLoadTimeout': 'Audio-Laden dauert zu lange, bitte versuchen Sie es später erneut',
+  'roleConfig.cloneAudioPlayFailed': 'Klon-Audio-Wiedergabe fehlgeschlagen',
+  'roleConfig.cannotPlayCloneAudio': 'Klon-Audio kann nicht abgespielt werden',
+  'roleConfig.getCloneAudioFailed': 'Klon-Audio konnte nicht abgerufen werden',
+  'roleConfig.noPreviewAudio': 'Diese Stimme hat keine Vorschau-Audio-Datei',
+  'roleConfig.audioPlayFailed': 'Audio-Wiedergabe fehlgeschlagen',
+  'roleConfig.cannotPlayAudio': 'Audio kann nicht abgespielt werden',
+  'roleConfig.audioPlayError': 'Fehler bei der Audio-Wiedergabe',
 
   // Function management dialog text
   'functionDialog.title': 'Funktionsverwaltung',
@@ -821,7 +831,7 @@ export default {
   'modelConfig.rag': 'RAG',
   'modelConfig.modelId': 'Modell-ID',
   'modelConfig.modelName': 'Modellname',
-  'modelConfig.provider': 'Anbieter',
+  'modelConfig.provider': 'Schnittstellentyp',
   'modelConfig.unknown': 'Unbekannt',
   'modelConfig.isEnabled': 'Aktiviert',
   'modelConfig.isDefault': 'Standard',
@@ -852,7 +862,7 @@ export default {
   'modelConfig.enableSuccess': 'Aktivieren erfolgreich',
   'modelConfig.disableSuccess': 'Deaktivieren erfolgreich',
   'modelConfig.operationFailed': 'Operation fehlgeschlagen',
-  'modelConfig.setDefaultSuccess': 'Standardmodell erfolgreich gesetzt',
+  'modelConfig.setDefaultSuccess': 'Standardmodell erfolgreich gesetzt, bitte starten Sie das xiaozhi-server-Modul zeitnah manuell neu',
   'modelConfig.itemsPerPage': '{items} Einträge/Seite',
   'modelConfig.firstPage': 'Erste Seite',
   'modelConfig.prevPage': 'Vorherige Seite',
@@ -919,6 +929,10 @@ export default {
   'ttsModel.selectVoiceToDelete': 'Bitte wählen Sie Stimmen zum Löschen aus',
   'ttsModel.warning': 'Warnung',
   'ttsModel.confirmDeleteVoice': 'Sind Sie sicher, dass Sie {count} Stimmen löschen möchten?',
+  'ttsModel.voiceCodeNameLanguageRequired': 'Stimmcode, Stimmaname und Sprache können nicht leer sein',
+  'ttsModel.deleteCancelled': 'Löschvorgang abgebrochen',
+  'ttsModel.updateSuccess': 'Aktualisierung erfolgreich',
+  'ttsModel.saveSuccess': 'Speicherung erfolgreich',
 
   // OTA Management Page Text
   'otaManagement.firmwareManagement': 'Firmware-Verwaltung',
