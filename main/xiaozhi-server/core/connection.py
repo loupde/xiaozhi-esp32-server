@@ -988,6 +988,7 @@ class ConnectionHandler:
                         content = response["content"]
                         tools_call = None
                     if content is not None and len(content) > 0:
+                        content = content.replace('**', '')
                         content_arguments += content
 
                     if not tool_call_flag and content_arguments.startswith("<tool_call>"):
@@ -1135,8 +1136,8 @@ class ConnectionHandler:
                 # 统一处理工具调用结果
                 if tool_results:
                     self._handle_function_result(tool_results, depth=depth)
-
         # 存储对话内容
+        response_message = response_message.replace('**', '')
         if len(response_message) > 0:
             text_buff = "".join(response_message)
             self.tts_MessageText = text_buff
