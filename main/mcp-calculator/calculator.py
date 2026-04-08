@@ -123,8 +123,15 @@ async def controlProductStrength(device_id:str,strength:int) -> dict:
     logger.info(f"controlProductStrength 设备ID: {device_id}")
     if device_id not in mac_user_map or not mac_user_map[device_id].get('deviceState'):
         return {"success": -1, "result": {}, "message": "请先连接设备"}
-    current_strength = mac_user_map[device_id].get('deviceState', {}).get('strength', 0)
-    return await sendto_client(device_id,{"type":"strength","strength": current_strength + strength})
+    device_state = mac_user_map[device_id].get('deviceState', {})
+    current_strength = device_state.get('strength', 0)
+    max_strength = device_state.get('maxStrength', 100)  # 默认最大值为100
+    new_strength = current_strength + strength
+    # 确保新强度不超过maxStrength
+    new_strength = min(new_strength, max_strength)
+    # 同时确保新强度不低于0
+    new_strength = max(new_strength, 0)
+    return await sendto_client(device_id,{"type":"strength","strength": new_strength})
 
 @mcp.tool()
 async def controlProductMode(device_id:str,mode:int) -> dict:
@@ -154,6 +161,23 @@ async def controlProductStartOrPause(device_id:str,startOrPause:int) -> dict:
     :param startOrPause: 1 开始 0 暂停"""
     logger.info(f"controlProduct 设备ID: {device_id}")
     return await sendto_client(device_id,{"type":"status","status": startOrPause})
+
+@mcp.tool()
+async def setLastUsedSettings(device_id:str) -> dict:
+    """ 在想要设置上一次的强度、模式、时长等时，请使用此工具
+    :param device_id: 设备ID"""
+    logger.info(f"setLastUsedSettings 设备ID: {device_id}")
+    if device_id not in mac_user_map or not mac_user_map[device_id].get('deviceState'):
+        return {"success": -1, "result": {}, "message": "请先连接设备"}
+    use_history = mac_user_map[device_id].get('useHistory', [])
+    if not use_history:
+        return {"success": -1, "result": {}, "message": "无使用历史记录"}
+    # 获取最新的一条历史记录
+    last_record = use_history[-1]
+    # 合并成一次发送，type定义为last_record
+    await sendto_client(device_id,{"type":"last_record","data": last_record})
+    return {"success": 0, "result": last_record, "message": "已设置为上一次的使用设置"}
+
 @mcp.tool()
 async def jumpPage(device_id:str,pageName:str) -> dict:
     """ 用户想要跳转页面或连接设备时，请始终使用此工具来控制app的页面跳转
