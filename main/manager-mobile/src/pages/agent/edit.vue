@@ -109,6 +109,7 @@ const inputValue = ref('')
 const inputVisible = ref(false)
 const languageOptions = ref([])
 const isVisibleReport = ref(false)
+const tempSummaryMemory = ref('')
 
 // 音频播放相关
 const audioRef = ref<UniApp.InnerAudioContext | null>(null)
@@ -162,6 +163,9 @@ function handleInputConfirm() {
   inputVisible.value = false
 }
 
+// 是否禁用历史记忆输入框
+const isMemoryDisabled = computed(() => formData.value.memModelId !== 'Memory_mem_local_short')
+
 // 打开上下文源编辑弹窗
 function openContextProviderDialog() {
   uni.navigateTo({
@@ -182,6 +186,7 @@ async function loadAgentDetail() {
 
   try {
     loading.value = true
+    tempSummaryMemory.value = ''
     const detail = await getAgentDetail(agentId.value)
     formData.value = { ...detail }
 
@@ -482,6 +487,13 @@ async function onPickerConfirm(type: string, value: any, name: string) {
       displayNames.value.memory = name // 确保显示名称正确更新
       displayNames.value.report = reportOptions[1].name
       isVisibleReport.value = value !== 'Memory_nomem'
+      if (value === 'Memory_nomem' || value === 'Memory_mem_report_only') {
+        tempSummaryMemory.value = formData.value.summaryMemory
+        formData.value.summaryMemory = ''
+      } else if (tempSummaryMemory.value !== '' && formData.value.summaryMemory === '') {
+        formData.value.summaryMemory = tempSummaryMemory.value
+        tempSummaryMemory.value = ''
+      }
       break
     case 'tts':
       formData.value.ttsModelId = value
@@ -942,8 +954,9 @@ onMounted(async () => {
         <textarea
           v-model="formData.summaryMemory"
           :placeholder="t('agent.memoryContent')"
-          disabled
-          class="box-border h-[500rpx] w-full resize-none break-words break-all border border-[#eeeeee] rounded-[12rpx] bg-[#f0f0f0] p-[20rpx] text-[26rpx] text-[#65686f] leading-[1.6] opacity-80 outline-none"
+          :disabled="isMemoryDisabled"
+          :style="isMemoryDisabled ? 'background: #f0f0f0' : ''"
+          class="box-border h-[500rpx] w-full resize-none break-words break-all border border-[#eeeeee] rounded-[12rpx] p-[20rpx] text-[26rpx] leading-[1.6] opacity-80 outline-none"
         />
       </view>
     </view>

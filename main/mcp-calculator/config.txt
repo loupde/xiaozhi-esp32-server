@@ -1,0 +1,8 @@
+
+test
+
+export MCP_ENDPOINT=ws://.107.177.172:23456/mcp_endpoint/mcp/?token=zmhJ6uQHu9mtukbcAHV1jI7G3RhRu9ArjnlwQ%2BooOksXGhi2v5zrG1a50XbhXIY3
+
+ws://192.168.3.139:8004/mcp_endpoint/mcp/?token=nZxz3Ln794FHXmdJyXLhHUrAm98G0P50E9eNCMRAE6PGxH5bjGTocOXTVOw6rIAY
+
+export MCP_ENDPOINT=ws://xxx:8014/mcp_endpoint/mcp/?token=nZxz3Ln794FHXmdJyXLhHUrAm98G0P50E9eNCMRAE6PGxH5bjGTocOXTVOw6rIAY
