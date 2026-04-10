@@ -29,6 +29,9 @@ async def handleAudioMessage(conn: "ConnectionHandler", audio):
     # manual 模式下不打断正在播放的内容
     if have_voice:
         if conn.client_is_speaking and conn.client_listen_mode != "manual":
+            conn.logger.bind(tag=TAG).info(
+                f"VAD detected voice while speaking, triggering abort | session_id={conn.session_id} | sentence_id={getattr(conn, 'sentence_id', None)} | listen_mode={conn.client_listen_mode}"
+            )
             await handleAbortMessage(conn)
     # 设备长时间空闲检测，用于say goodbye
     await no_voice_close_connect(conn, have_voice)
@@ -83,6 +86,9 @@ async def startToChat(conn: "ConnectionHandler", text):
             return
     # manual 模式下不打断正在播放的内容
     if conn.client_is_speaking and conn.client_listen_mode != "manual":
+        conn.logger.bind(tag=TAG).info(
+            f"startToChat detected speaking state, triggering abort before new chat | session_id={conn.session_id} | sentence_id={getattr(conn, 'sentence_id', None)} | listen_mode={conn.client_listen_mode}"
+        )
         await handleAbortMessage(conn)
 
     # 首先进行意图分析，使用实际文本内容

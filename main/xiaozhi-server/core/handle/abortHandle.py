@@ -11,7 +11,9 @@ async def handleAbortMessage(conn: "ConnectionHandler"):
         conn.logger.bind(tag=TAG).info("退出流程中被打断，直接关闭连接")
         return
         
-    conn.logger.bind(tag=TAG).info("Abort message received")
+    conn.logger.bind(tag=TAG).info(
+        f"Abort message received | session_id={conn.session_id} | sentence_id={getattr(conn, 'sentence_id', None)} | speaking={conn.client_is_speaking} | listen_mode={conn.client_listen_mode}"
+    )
     # 设置成打断状态，会自动打断llm、tts任务
     conn.client_abort = True
     conn.clear_queues()
@@ -21,4 +23,6 @@ async def handleAbortMessage(conn: "ConnectionHandler"):
 	#json.dumps({"type": "tts", "state": "stop", "session_id": conn.session_id})
     )
     conn.clearSpeakStatus()
-    conn.logger.bind(tag=TAG).info("Abort message received-end")
+    conn.logger.bind(tag=TAG).info(
+        f"Abort message received-end | session_id={conn.session_id} | sentence_id={getattr(conn, 'sentence_id', None)}"
+    )

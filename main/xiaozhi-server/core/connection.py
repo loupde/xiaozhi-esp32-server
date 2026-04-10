@@ -978,9 +978,15 @@ class ConnectionHandler:
         content_arguments = ""
         self.client_abort = False
         emotion_flag = True
+        stream_chunk_count = 0
+        stream_content_count = 0
         try:
             for response in llm_responses:
+                stream_chunk_count += 1
                 if self.client_abort:
+                    self.logger.bind(tag=TAG).warning(
+                        f"LLM stream interrupted by client_abort | session_id={self.session_id} | sentence_id={self.sentence_id} | chunks={stream_chunk_count} | content_chunks={stream_content_count}"
+                    )
                     break
                 if self.intent_type == "function_call" and functions is not None:
                     content, tools_call = response
@@ -1010,6 +1016,7 @@ class ConnectionHandler:
                     emotion_flag = False
 
                 if content is not None and len(content) > 0:
+                    stream_content_count += 1
                     if not tool_call_flag:
                         response_message.append(content)
                         self.tts.tts_text_queue.put(
