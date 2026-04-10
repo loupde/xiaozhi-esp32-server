@@ -49,7 +49,7 @@ async def queryUserInfo(device_id:str) -> dict:
         user_info = mac_user_map[device_id].get('userInfo', {})
         return {"success": 0, "result": user_info}
     else:
-        return {"success": -1, "result": {}, "message": "设备未连接或无用户信息"}
+        return {"success": -1, "result": {}, "message": "Device not connected or no user information"}
 
 @mcp.tool()
 async def queryDeviceState(device_id:str) -> dict:
@@ -59,7 +59,7 @@ async def queryDeviceState(device_id:str) -> dict:
         device_state = mac_user_map[device_id].get('deviceState', {})
         return {"success": 0, "result": device_state}
     else:
-        return {"success": -1, "result": {}, "message": "设备未连接或无设备状态信息"}
+        return {"success": -1, "result": {}, "message": "Device not connected or no device status information"}
 
 @mcp.tool()
 async def queryUseHistory(device_id:str) -> dict:
@@ -69,7 +69,7 @@ async def queryUseHistory(device_id:str) -> dict:
         use_history = mac_user_map[device_id].get('useHistory', [])
         return {"success": 0, "result": use_history}
     else:
-        return {"success": -1, "result": [], "message": "设备未连接或无使用历史信息"}
+        return {"success": -1, "result": [], "message": "Device not connected or no usage history information"}
 
 # Add an addition tool
 @mcp.tool()
@@ -122,7 +122,7 @@ async def controlProductStrength(device_id:str,strength:int) -> dict:
     :param strength: 强度（增加为正数，减少为负数）"""
     logger.info(f"controlProductStrength 设备ID: {device_id}")
     if device_id not in mac_user_map or not mac_user_map[device_id].get('deviceState'):
-        return {"success": -1, "result": {}, "message": "请先连接设备"}
+        return {"success": -1, "result": {}, "message": "Please connect the device first"}
     device_state = mac_user_map[device_id].get('deviceState', {})
     current_strength = device_state.get('strength', 0)
     max_strength = device_state.get('maxStrength', 100)  # 默认最大值为100
@@ -140,7 +140,7 @@ async def controlProductMode(device_id:str,mode:int) -> dict:
     :param mode: 模式（取值为设备可用模式中的modeId）"""
     logger.info(f"controlProductMode 设备ID: {device_id}")
     if device_id not in mac_user_map or not mac_user_map[device_id].get('deviceState'):
-        return {"success": -1, "result": {}, "message": "请先连接设备"}
+        return {"success": -1, "result": {}, "message": "Please connect the device first"}
     return await sendto_client(device_id,{"type":"mode","mode": mode})
 
 @mcp.tool()
@@ -151,7 +151,7 @@ async def controlProductTime(device_id:str,time:int) -> dict:
     logger.info(f"controlProductTime 设备ID: {device_id}")
     current_use_time = mac_user_map[device_id].get('deviceState', {}).get('useTime', 0)
     if device_id not in mac_user_map or not mac_user_map[device_id].get('deviceState'):
-        return {"success": -1, "result": {}, "message": "请先连接设备"}
+        return {"success": -1, "result": {}, "message": "Please connect the device first"}
     return await sendto_client(device_id,{"type":"time","time": current_use_time + time})
 
 @mcp.tool()
@@ -168,15 +168,15 @@ async def setLastUsedSettings(device_id:str) -> dict:
     :param device_id: 设备ID"""
     logger.info(f"setLastUsedSettings 设备ID: {device_id}")
     if device_id not in mac_user_map or not mac_user_map[device_id].get('deviceState'):
-        return {"success": -1, "result": {}, "message": "请先连接设备"}
+        return {"success": -1, "result": {}, "message": "Please connect the device first"}
     use_history = mac_user_map[device_id].get('useHistory', [])
     if not use_history:
-        return {"success": -1, "result": {}, "message": "无使用历史记录"}
+        return {"success": -1, "result": {}, "message": "No usage history records"}
     # 获取最新的一条历史记录
     last_record = use_history[-1]
     # 合并成一次发送，type定义为last_record
     await sendto_client(device_id,{"type":"last_record","data": last_record})
-    return {"success": 0, "result": last_record, "message": "已设置为上一次的使用设置"}
+    return {"success": 0, "result": last_record, "message": "Set to last used settings"}
 
 @mcp.tool()
 async def jumpPage(device_id:str,pageName:str) -> dict:
@@ -202,7 +202,7 @@ async def jumpPage(device_id:str,pageName:str) -> dict:
         if page["name"] == pageName:
             path = page["path"]
     if path == None:
-        return {"success": -1, "message": "页面不存在"}
+        return {"success": -1, "message": "Page does not exist"}
     return await sendto_client(device_id,{"type":"jump","path": path})
 @mcp.tool()
 async def openConversation(device_id:str) -> dict:
@@ -221,20 +221,20 @@ async def closeConversation(device_id:str) -> dict:
 async def sendto_client(device_id: str,result: dict) -> dict:
     if device_id not in mac_client_map:
         logger.error(f"设备 {device_id} 未连接或不存在")
-        return {"success": -1, "result": "设备未连接"}
+        return {"success": -1, "result": "Device not connected"}
     obj = mac_client_map[device_id]
     websocket = obj['websocket']
     if websocket:
         try:
-          result = {"success": 0, "result": result,"message": f"操作成功"}
+          result = {"success": 0, "result": result,"message": f"Operation successful"}
           logger.info(f"向设备 {device_id} 发送消息: {json.dumps(result)}")
           await websocket.send(json.dumps(result))
           return result
         except Exception as e:
           logger.error(f"向设备 {device_id} 发送消息失败: {str(e)}")
-          return {"success": -5, "result": "发送消息失败"}
+          return {"success": -5, "result": "Failed to send message"}
     else:
-        return {"success": -1, "result": "设备连接已断开"}
+        return {"success": -1, "result": "Device connection disconnected"}
 
 
 async def register_client(mac: str, websocket: Any):
@@ -319,14 +319,14 @@ class UserInfoHTTPHandler(BaseHTTPRequestHandler):
                 use_history = user_data.get('useHistory', [])
                 
                 # 格式化用户信息
-                user_info_str = f"姓名：{user_info.get('name', '')}，性别：{user_info.get('sex', '')}，年龄：{user_info.get('age', '')}，身高：{user_info.get('height', '')}，体重：{user_info.get('weight', '')}"
+                user_info_str = f"Name: {user_info.get('name', '')}, Gender: {user_info.get('sex', '')}, Age: {user_info.get('age', '')}, Height: {user_info.get('height', '')}, Weight: {user_info.get('weight', '')}"
                 
                 # 格式化设备状态
-                device_state_str = f"强度{device_state.get('strength', 0)}，模式{device_state.get('mode', 0)}，当前状态{device_state.get('status', '')}，设备名称{device_state.get('deviceName', '')}，最小强度{device_state.get('minStrength', 0)}，最大强度{device_state.get('maxStrength', 0)}，最长使用时间{device_state.get('maxTime', 0)}分钟，当前使用时间{device_state.get('useTime', 0)}分钟，约束{device_state.get('constraints', '')}"
+                device_state_str = f"Strength: {device_state.get('strength', 0)}, Mode: {device_state.get('mode', 0)}, Status: {device_state.get('status', '')}, Device Name: {device_state.get('deviceName', '')}, Min Strength: {device_state.get('minStrength', 0)}, Max Strength: {device_state.get('maxStrength', 0)}, Max Usage Time: {device_state.get('maxTime', 0)} minutes, Current Usage Time: {device_state.get('useTime', 0)} minutes, Constraints: {device_state.get('constraints', '')}"
                 
                 #设备可用模式 modeList
                 mode_list = user_data.get('modeList', [])
-                mode_list_str = "全部按摩模式有："
+                mode_list_str = "All massage modes: "
                 if mode_list:
                     modes = []
                     for item in mode_list:
@@ -334,23 +334,23 @@ class UserInfoHTTPHandler(BaseHTTPRequestHandler):
                         tips = item.get('tips', '')
                         position = item.get('position', '')
                         introduce = item.get('introduce', '')
-                        modes.append(f"模式ID:{mode_id},适用部位:{position},提示:{tips},模式类型:{introduce}")
-                    mode_list_str += "；".join(modes)
+                        modes.append(f"Mode ID: {mode_id}, Applicable Position: {position}, Tips: {tips}, Mode Type: {introduce}")
+                    mode_list_str += "; ".join(modes)
                 else:
-                    mode_list_str = "无"
+                    mode_list_str = "None"
                 
                 # 格式化历史记录
                 history_count = len(use_history)
-                history_str = f"当前历史记录数量为{history_count}条"
+                history_str = f"Current history record count: {history_count}"
                 for idx, record in enumerate(use_history, 1):
-                    history_str += f",第{idx}条数据，模式:{record.get('mode', 0)},强度:{record.get('strength', 0)}, 开始时间:{record.get('startTime', '')},结束时间:{record.get('endTime', '')}"
+                    history_str += f", Record {idx}: Mode: {record.get('mode', 0)}, Strength: {record.get('strength', 0)}, Start Time: {record.get('startTime', '')}, End Time: {record.get('endTime', '')}"
                 history_str += "."
                 
                 formatted_data = {
-                    "用户信息": user_info_str,
-                    "当前设备状态": device_state_str,
-                    "设备可用模式": mode_list_str,
-                    "历史记录": history_str
+                    "user_info": user_info_str,
+                    "device_state": device_state_str,
+                    "available_modes": mode_list_str,
+                    "history_records": history_str
                 }
                 
                 response = {
