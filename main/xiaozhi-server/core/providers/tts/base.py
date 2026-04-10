@@ -143,7 +143,9 @@ class TTSProviderBase(ABC):
                     logger.bind(tag=TAG).error(
                         f"语音生成失败: {text}，请检查网络或服务是否正常"
                     )
-                self.tts_audio_queue.put((SentenceType.FIRST, None, text))
+                sentence_type = SentenceType.FIRST if self.tts_audio_first_sentence else SentenceType.MIDDLE
+                self.tts_audio_queue.put((sentence_type, None, text))
+                self.tts_audio_first_sentence = False
                 self._process_audio_file_stream(tmp_file, callback=opus_handler)
             except Exception as e:
                 logger.bind(tag=TAG).error(f"Failed to generate TTS file: {e}")
