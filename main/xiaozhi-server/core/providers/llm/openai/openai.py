@@ -69,6 +69,43 @@ class LLMProvider(LLMProviderBase):
                 msg["content"] = ""
         return dialogue
 
+    @staticmethod
+    def _extract_visible_content(buffer, is_active):
+        visible_parts = []
+
+        while buffer:
+            if is_active:
+                think_start = buffer.find("<think>")
+                if think_start == -1:
+                    partial_tag_pos = buffer.find("<")
+                    if partial_tag_pos != -1 and "<think>".startswith(buffer[partial_tag_pos:]):
+                        if partial_tag_pos > 0:
+                            visible_parts.append(buffer[:partial_tag_pos])
+                            buffer = buffer[partial_tag_pos:]
+                        break
+                    visible_parts.append(buffer)
+                    buffer = ""
+                    break
+
+                if think_start > 0:
+                    visible_parts.append(buffer[:think_start])
+                buffer = buffer[think_start + len("<think>"):]
+                is_active = False
+            else:
+                think_end = buffer.find("</think>")
+                if think_end == -1:
+                    partial_end_pos = buffer.find("</")
+                    if partial_end_pos != -1 and "</think>".startswith(buffer[partial_end_pos:]):
+                        buffer = buffer[partial_end_pos:]
+                    else:
+                        buffer = ""
+                    break
+
+                buffer = buffer[think_end + len("</think>"):]
+                is_active = True
+
+        return "".join(visible_parts), buffer, is_active
+
     def response(self, session_id, dialogue, **kwargs):
         dialogue = self.normalize_dialogue(dialogue)
 
@@ -93,6 +130,7 @@ class LLMProvider(LLMProviderBase):
         responses = self.client.chat.completions.create(**request_params)
 
         is_active = True
+        content_buffer = ""
         for chunk in responses:
             try:
                 delta = chunk.choices[0].delta if getattr(chunk, "choices", None) else None
@@ -100,14 +138,10 @@ class LLMProvider(LLMProviderBase):
             except IndexError:
                 content = ""
             if content:
-                if "<think>" in content:
-                    is_active = False
-                    content = content.split("<think>")[0]
-                if "</think>" in content:
-                    is_active = True
-                    content = content.split("</think>")[-1]
-                if is_active:
-                    yield content
+                content_buffer += content
+                visible_content, content_buffer, is_active = self._extract_visible_content(content_buffer, is_active)
+                if visible_content:
+                    yield visible_content
 
     def response_with_functions(self, session_id, dialogue, functions=None, **kwargs):
         dialogue = self.normalize_dialogue(dialogue)
