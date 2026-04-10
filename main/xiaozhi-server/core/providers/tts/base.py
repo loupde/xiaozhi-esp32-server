@@ -308,6 +308,9 @@ class TTSProviderBase(ABC):
                             tts_file, callback=self.handle_opus
                         )
                 if message.sentence_type == SentenceType.LAST:
+                    logger.bind(tag=TAG).info(
+                        f"TTS LAST received, flushing remaining text | sentence_id={message.sentence_id} | content={message.content_detail}"
+                    )
                     self._process_remaining_text_stream(opus_handler=self.handle_opus)
                     self.tts_audio_queue.put(
                         (message.sentence_type, [], message.content_detail)

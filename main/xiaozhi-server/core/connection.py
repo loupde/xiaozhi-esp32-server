@@ -1018,6 +1018,9 @@ class ConnectionHandler:
                 if content is not None and len(content) > 0:
                     stream_content_count += 1
                     if not tool_call_flag:
+                        self.logger.bind(tag=TAG).info(
+                            f"LLM content enqueued to TTS | session_id={self.session_id} | sentence_id={self.sentence_id} | chunk_index={stream_chunk_count} | content_index={stream_content_count} | content={content}"
+                        )
                         response_message.append(content)
                         self.tts.tts_text_queue.put(
                             TTSMessageDTO(
