@@ -94,7 +94,9 @@ class TTSProviderBase(ABC):
                 try:
                     audio_bytes = asyncio.run(self.text_to_speak(text, None))
                     if audio_bytes:
-                        self.tts_audio_queue.put((SentenceType.FIRST, None, text))
+                        sentence_type = SentenceType.FIRST if self.tts_audio_first_sentence else SentenceType.MIDDLE
+                        self.tts_audio_queue.put((sentence_type, None, text))
+                        self.tts_audio_first_sentence = False
                         audio_bytes_to_data_stream(
                             audio_bytes,
                             file_type=self.audio_file_type,
