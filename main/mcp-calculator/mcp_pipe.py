@@ -244,7 +244,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     
     # Get token from environment variable or command line arguments
-    endpoint_url = os.environ.get('MCP_ENDPOINT')
+    endpoint_url = 'ws://172.19.0.23:8004/mcp_endpoint/mcp/?token=8UbDzEwDS3kwBpldjvtcbb0UJ57ZK5uwB1CK0Ir0RFncPaYOlciqaLl7XTN7p2HJ'#os.environ.get('MCP_ENDPOINT')
     if not endpoint_url:
         logger.error("Please set the `MCP_ENDPOINT` environment variable")
         sys.exit(1)

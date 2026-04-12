@@ -17,7 +17,7 @@ async def handleAbortMessage(conn: "ConnectionHandler"):
     conn.clear_queues()
     # 打断客户端说话状态
     await conn.websocket.send(
-        json.dumps({"type": "tts", "state": "stop", "session_id": conn.session_id})
+        json.dumps({"type": "tts", "state": "stop", "ext": "abort", "session_id": conn.session_id})
     )
     conn.clearSpeakStatus()
     conn.logger.bind(tag=TAG).info("Abort message received-end")
