@@ -42,9 +42,11 @@ import xiaozhi.modules.timbre.service.TimbreService;
 import xiaozhi.modules.timbre.vo.TimbreDetailsVO;
 import xiaozhi.modules.voiceclone.entity.VoiceCloneEntity;
 import xiaozhi.modules.voiceclone.service.VoiceCloneService;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ConfigServiceImpl implements ConfigService {
     private final SysParamsService sysParamsService;
     private final DeviceService deviceService;
@@ -123,6 +125,7 @@ public class ConfigServiceImpl implements ConfigService {
         DeviceEntity device = deviceService.getDeviceByMacAddress(macAddress);
         if (device == null) {
             if(macAddress.startsWith("55:44")){
+                log.debug("根据MAC地址查找设备 {}", macAddress);
                 device = new DeviceEntity();
                 device.setAgentId("4fcfdce15fff4174a64ae9d0bf3f86fb");
             }else{
@@ -138,6 +141,7 @@ public class ConfigServiceImpl implements ConfigService {
 
         // 获取智能体信息
         AgentEntity agent = agentService.getAgentById(device.getAgentId());
+        log.debug("根据设备ID查找智能体 {}", agent.getAgentId());
         if (agent == null) {
             throw new RenException(ErrorCode.AGENT_NOT_FOUND);
         }
