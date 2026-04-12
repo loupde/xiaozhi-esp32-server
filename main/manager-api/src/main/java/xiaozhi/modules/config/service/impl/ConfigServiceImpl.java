@@ -130,9 +130,10 @@ public class ConfigServiceImpl implements ConfigService {
                 String cachedCode = deviceService.geCodeByDeviceId(macAddress);
                 if (StringUtils.isNotBlank(cachedCode)) {
                     throw new RenException(ErrorCode.OTA_DEVICE_NEED_BIND, cachedCode);
+                }else{
+                    throw new RenException(ErrorCode.OTA_DEVICE_NOT_FOUND);
                 }
             }
-            throw new RenException(ErrorCode.OTA_DEVICE_NOT_FOUND);
         }
 
         // 获取智能体信息
