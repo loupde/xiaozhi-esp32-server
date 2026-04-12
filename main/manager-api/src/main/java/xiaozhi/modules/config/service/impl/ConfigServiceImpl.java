@@ -141,7 +141,7 @@ public class ConfigServiceImpl implements ConfigService {
 
         // 获取智能体信息
         AgentEntity agent = agentService.getAgentById(device.getAgentId());
-        log.debug("根据设备ID查找智能体 {}", agent.getAgentId());
+        log.debug("根据设备ID查找智能体 {}", agent.getAgentName());
         if (agent == null) {
             throw new RenException(ErrorCode.AGENT_NOT_FOUND);
         }
