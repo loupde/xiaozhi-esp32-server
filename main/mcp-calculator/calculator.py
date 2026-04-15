@@ -71,6 +71,30 @@ async def queryUseHistory(device_id:str) -> dict:
     else:
         return {"success": -1, "result": [], "message": "Device not connected or no usage history information"}
 
+@mcp.tool()
+async def queryModeList(device_id:str) -> dict:
+    """ 在想要查询设备可用模式、模式列表、按摩模式列表、每个模式对应说明时，请始终使用此工具来获取设备可用模式
+    :param device_id: 设备ID"""
+    if device_id in mac_user_map:
+        mode_list = mac_user_map[device_id].get('modeList', [])
+        return {"success": 0, "result": mode_list}
+    else:
+        return {"success": -1, "result": [], "message": "Device not connected or no available mode information"}
+
+
+def format_mode_list(mode_list: list[dict]) -> str:
+    if not mode_list:
+        return "None"
+
+    modes = []
+    for item in mode_list:
+        mode_id = item.get('modeId', '')
+        tips = item.get('tips', '')
+        position = item.get('position', '')
+        introduce = item.get('introduce', '')
+        modes.append(f"Mode ID: {mode_id}, Applicable Position: {position}, Tips: {tips}, Mode Type: {introduce}")
+    return "All massage modes: " + "; ".join(modes)
+
 # Add an addition tool
 @mcp.tool()
 def queryProducts(device_id:str) -> dict:
@@ -134,7 +158,8 @@ async def controlProductStrength(device_id:str,strength:int) -> dict:
 
 @mcp.tool()
 async def controlProductMode(device_id:str,mode:int) -> dict:
-    """ 在想要控制产品按摩模式时，请始终使用此工具来控制产品的模式
+    """ 在想要控制产品按摩模式时，请始终使用此工具来控制产品的模式。
+    在不确定设备支持哪些模式、或需要先查看 modeId 与模式说明对应关系时，应先调用 queryModeList。
     :param device_id: 设备ID
     :param mode: 模式（取值为设备可用模式中的modeId）"""
     logger.info(f"controlProductMode 设备ID: {device_id}")
@@ -325,18 +350,7 @@ class UserInfoHTTPHandler(BaseHTTPRequestHandler):
                 
                 #设备可用模式 modeList
                 mode_list = user_data.get('modeList', [])
-                mode_list_str = "All massage modes: "
-                if mode_list:
-                    modes = []
-                    for item in mode_list:
-                        mode_id = item.get('modeId', '')
-                        tips = item.get('tips', '')
-                        position = item.get('position', '')
-                        introduce = item.get('introduce', '')
-                        modes.append(f"Mode ID: {mode_id}, Applicable Position: {position}, Tips: {tips}, Mode Type: {introduce}")
-                    mode_list_str += "; ".join(modes)
-                else:
-                    mode_list_str = "None"
+                mode_list_str = format_mode_list(mode_list)
                 
                 # 格式化历史记录
                 history_count = len(use_history)
