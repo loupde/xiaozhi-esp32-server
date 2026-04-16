@@ -123,6 +123,9 @@ async def no_voice_close_connect(conn: "ConnectionHandler", have_voice):
             if not prompt:
                 prompt = "请你以```时间过得真快```未来头，用富有感情、依依不舍的话来结束这场对话吧。！"
             await startToChat(conn, prompt)
+            await conn.websocket.send(
+                json.dumps({"type": "end","msg": "no_voice_close", "session_id": conn.session_id})
+            )
 
 
 async def max_out_size(conn: "ConnectionHandler"):
